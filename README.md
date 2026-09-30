@@ -116,9 +116,8 @@ This layered design allows required functionality to be added or exchanged witho
 
 ## Seed Bank and Enterprise Extensions
 
-Seed processing follows the basic flow:
+Seed preparation follows the basic flow:
 
-```text
 Physical Entropy
       ↓
 Conditioning
@@ -126,13 +125,14 @@ Conditioning
 Algebraic / LPS Mixing
       ↓
 512-bit Seed Bank
-```
 
-In addition, **PROFILE** is provided as a replaceable layer, allowing Seed-quality research, comparison, and reproducibility testing to be performed independently.
+This is the seed-preparation path, not a per-handoff fresh-entropy reseeding loop. The continuous Monte Carlo execution path does not reacquire physical entropy or generate a fresh physical-entropy seed for each state handoff. Instead, previously conditioned seed material is deterministically transformed into the completed Front state sets used by the high-speed execution path.
 
-The platform also provides enterprise-oriented operational functions such as **reproducibility control (CRN, Checkpoint, Exact Replay)** and domain adapters for financial and pharmaceutical workloads.
+In addition, PROFILE is provided as a replaceable layer, allowing seed-quality research, comparison, and reproducibility testing to be performed independently.
 
-Importantly, these advanced functions are kept outside the hot loop of the high-speed Front through a **Layered Architecture**, allowing required functionality to be combined and selected without sacrificing execution speed.
+The platform also provides enterprise-oriented operational functions such as reproducibility control (CRN, Checkpoint, Exact Replay) and domain adapters for financial and pharmaceutical workloads.
+
+Importantly, these advanced functions are kept outside the core high-speed Front hot loop through a Layered Architecture, allowing required functionality to be combined and selected without placing their heavier processing into the continuous Front execution path.
 
 ---
 
