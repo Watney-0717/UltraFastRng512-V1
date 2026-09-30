@@ -1,108 +1,167 @@
 # UltraFastRng512 V1
 
-**Canonical V1 public release tree — 2026-09-30**
+**An ultra-fast Monte Carlo (MC) execution platform optimized for AVX-512.**
 
-UltraFastRng512 V1 is an AVX-512-oriented Monte Carlo execution path that separates Seed/Back preparation from a lightweight Front, then connects the Front output to Normal v9, 4-way fanout, PaperView / Final-Cultivation, and domain-specific Monte Carlo consumers.
+UltraFastRng512 adopts a layered architecture that completely separates **Back** (which handles heavy Seed generation and diffusion processing) from **Front** (which uses completed Seeds to generate samples at high speed).
 
-This public tree intentionally contains **V1 only**. V2 research candidates, LEGACY material, staging artifacts, and CPU-specific prebuilt binaries are kept outside the canonical V1 release.
+The platform integrates not only RNG generation, but also Normal transformation, PaperView / Final-Cultivation, Fanout, and Monte Carlo computation into a single pipeline, with the design goal of achieving high-speed one-core-complete MC execution while maintaining statistical quality and numerical accuracy.
 
-## Start here
+---
 
-### 1. Build and verify
+## Performance
 
-```bash
-./tools/build_and_verify.sh
-```
+### Single-core full-pipeline performance
 
-The default build uses `-O3 -std=c11 -march=native -pthread` and links OpenSSL `libcrypto` and `libm`. Set `CC` or `CFLAGS` for a controlled environment.
+* **Up to 46.602 Gsamples/s** *(AMD EPYC 9V74 shared-VM environment)*
 
-The main V1 implementation is a single translation unit and embeds the selected V1 adapter `.c` components. Do not also link those embedded components as separate objects for the main executable.
+> **Note:** This is not RNG-only performance. It is a long-duration measurement of the complete one-core execution system including **Front / Normal / PaperView / MC / Back A/B**.
 
-### 2. Speed showcase
+### Domain-specific single-core effective throughput
 
-```bash
-./build/bench_speed_v1
-```
+*(Shared-VM environment)*
 
-Representative path:
+* **R2 Monte Carlo:** 33.065 Gsamples/s *(Peak 46.6G)*  
+  — Precomputed R2 cache / 8 parallel accumulators
 
-```text
-Front16 / Back A+B
-    -> Normal v9
-    -> 4-way
-    -> DIRECT
-    -> R2_FLOAT32 specialized path
-    -> 8-accumulator R2 consumer
-```
+* **FLOAT32:** 19.129 Gsamples/s  
+  — Direct Normal consumption / SIMD (standard-format output)
 
-Front + Back A/B + MC remain confined to one logical CPU core in this benchmark. The headline figure is a **logical MC-sample throughput** under the stated generation policy; it is not a claim that the same number of newly generated independent Normal values per second has been produced.
+* **INT32:** 16.359 Gsamples/s  
+  — R2-independent standard-format output
 
-### 3. Fresh-starter companion benchmark
+* **Finance MC:** 1.2–1.4 Gsamples/s  
+  — Shared common terminal computation / 4+4 structure
 
-```bash
-./build/bench_speed_fresh_sample_v1
-```
+* **Pharma MC:** 0.7–0.9 Gsamples/s  
+  — Shared exposure calculations / invariant precomputation
 
-This forces `UFR_GENERATION_CHUNK` so the Normal starter is regenerated at each MC chunk. It is a qualification companion to the fixed-generation showcase, not a replacement for it.
+* **Multi-core scalability:** A 3-core independent-worker experiment demonstrated **3.032× scaling** relative to single-core performance under the same environment.
 
-### 4. MC-input quality
+---
 
-```bash
-./build/bench_quality_mc_input_v1
-```
+## Statistical Quality & Precision
 
-This measures the actual R2 x/y values immediately before the MC operation after the V1 555-pair geometry and R2 normalization. It reports mean, variance, skew/kurtosis, correlation, dep2, lag-1 behavior, radial moments, hit rate, sign balance, and tails.
+* **RNG bitstream qualification:**  
+  A 512 MiB-scale surrogate statistical test battery, including chi-square, Hamming-weight, matrix-rank, linear-complexity, and related tests, was performed with no obvious anomaly observed.
 
-### 5. Optimization integrity / anti-reuse
+* **MC-level distribution validation:**  
+  After Normal transformation, the standard moments (mean ≈ 0, variance ≈ 1) and pair/radial characteristics  
+  (**E[R²] ≈ 2.0, Var(R²) ≈ 4.0, P(R² ≤ 1) ≈ 0.3935**)  
+  were found to be in close agreement with their theoretical values.
 
-```bash
-./build/bench_quality_options_v1
-./build/bench_quality_anti_reuse_deep_v1
-```
+* **Precision preservation under optimization:**  
+  With various domain optimizations enabled, including precomputation and shared computation, the relative difference of estimators from the baseline remained within the **sub-ppm range**, with a maximum of **5.594e-07 or less**, without degrading computational precision.
 
-The deep audit distinguishes byte-level inequality from reuse of the underlying scalar Normal starter pool. In particular, the four PaperView views may expose the same scalar starter values under different deterministic layouts, and FIXED generation may retain that starter pool across chunks. Therefore logical sample count and independent sample count must not be treated as synonyms.
+* **Dynamic Seed Exchange:**  
+  The system observes when the next-generation Seed prepared by Back becomes **READY** and safely updates the Seed using A/B double buffering without stopping the high-speed Front execution loop.
 
-### Public statistical-test boundary
+---
 
-PractRand, TestU01 / SmallCrush, dieharder, and NIST SP800-22 are not bundled as native named-suite certification runs in this release tree. Existing MC-quality and surrogate-battery records are evidence for the stated scope only; they do not replace those named suites.
+## Architecture
 
-## Repository layout
+The basic structure of UltraFastRng512 is:
 
 ```text
-include/       public headers
-src/           canonical V1 implementation and embedded components
-bench/         V1 benchmark / audit sources
-tests/         release self-verification helpers
-tools/         build and verification scripts
-docs/          mathematical specification, audits, full deconstruction book
-results/       V1 benchmark result records
-metadata/      release scope and provenance
-license/       component-specific license notices
+Physical Entropy
+       │
+       ▼
+Entropy Conditioning
+       │
+       ▼
+LPS / Algebraic Mixing
+       │
+       ▼
+512-bit Seed Bank
+       │
+       ▼
+PROFILE
+       │
+       ▼
+Back
+ Seed preparation / exchange
+       │
+       ▼
+Fast Front
+ Front16 / AVX-512
+       │
+       ▼
+Normal v9
+       │
+       ▼
+4-way Fanout
+       │
+       ▼
+PaperView / Final-Cultivation
+       │
+       ▼
+Monte Carlo
+ ┌─────┼─────┐
+ ▼     ▼     ▼
+ R2   Finance Pharma
 ```
 
-## License map
+The Back side prepares strongly diffused Seed / Seed Bank material for delivery to Front.
 
-- **Core engine code:** AGPL-3.0-only OR separate Commercial License
-- **Benchmark/source tooling:** 0BSD unless a file states otherwise
-- **Benchmark result data:** CC0 1.0 intended dedication, subject to applicable law
-- **Deconstruction Book:** CC BY-NC-ND 4.0
-- **Mathematical specification:** CC BY 4.0
-- **Third-party material:** original license remains applicable
+Here, **Seed quality, independence, reproducibility, and identifiability are prioritized over speed**.
 
-See `LICENSE-AGPL-3.0-only.txt`, `COMMERCIAL_LICENSE.md`, `COMMERCIAL-LICENSE-NOTICE.md`, `SOURCE_LICENSE_MAP.md`, `THIRD_PARTY_LICENSES.md`, and the component-specific notices under `license/`.
+V1 adopts a simple **Back A/B Seed exchange** architecture and does not bring complex management information into the Front side.
 
-## Official Communications & Commercial Inquiries
+UltraFastRng512 V1 organizes random-number generation, distribution transformation, data transport, MC statistical processing, reproducibility management, and domain-specific computation as independent layers.
 
-**Email:** WatneyWatneyWatney0717@proton.me
+Heavy processing related to Seed quality is placed in the **Back / Seed layer**; output format and data transport are placed in the **PaperView / Final-Cultivation layer**; statistical evaluation and convergence control are placed in the **Common Post layer**; Deterministic Stream, CRN, Checkpoint, Exact Replay, and related functions are placed in the **Control Plane**; and Finance / Pharma-specific computation is placed in the **Domain Adapter layer**.
 
-## Rights Holder
+This layered design allows required functionality to be added or exchanged without introducing unnecessary processing into the hot loop of the high-speed AVX-512 Front.
 
-**Watney-0717** is the public project identity and rights-holder name used for this release.
+---
+
+## Seed Bank and Enterprise Extensions
+
+Seed processing follows the basic flow:
+
+```text
+Physical Entropy
+      ↓
+Conditioning
+      ↓
+Algebraic / LPS Mixing
+      ↓
+512-bit Seed Bank
+```
+
+In addition, **PROFILE** is provided as a replaceable layer, allowing Seed-quality research, comparison, and reproducibility testing to be performed independently.
+
+The platform also provides enterprise-oriented operational functions such as **reproducibility control (CRN, Checkpoint, Exact Replay)** and domain adapters for financial and pharmaceutical workloads.
+
+Importantly, these advanced functions are kept outside the hot loop of the high-speed Front through a **Layered Architecture**, allowing required functionality to be combined and selected without sacrificing execution speed.
+
+---
+
+## 133-Page Technical Monograph
+
+A **133-page Technical Monograph** covering the design, implementation, measurements, quality evaluation, MC optimization, reproducibility, detailed mathematical derivations, and known limitations of UltraFastRng512 V1 is provided.
+
+Please refer to the accompanying PDF documentation for details.
+
+---
 
 ## Commercial Licensing
 
-A separate `COMMERCIAL_LICENSE.md` is provided for proprietary, closed-source, or otherwise non-AGPL use. The Commercial License includes Per-Product and Enterprise licensing options and may be supplemented by individually agreed Integration Support / advisory services.
+This platform is provided under a **dual-license model: AGPL-3.0-only and Commercial License**.
 
-## Release status
+For closed-source use in commercial product integration, SaaS deployment, and similar applications, a **Commercial License** is available.
 
-This tree is the **canonical V1 public release tree** assembled from the recovered 2026-09-29 POC and Anti-Reuse Recovery bundles plus the current 2026-09-30 English Deconstruction Book. V2 research candidates, LEGACY material, staging artifacts, and CPU-specific build products are excluded.
+> **Note:** Please refer to the respective license documents in the repository for the scope of the licenses and details regarding commercial use.
+
+### Commercial Inquiries
+
+**WatneyWatneyWatney0717@proton.me**
+
+---
+
+## Call for Official Name
+
+**“UltraFastRng512” is currently a development codename.**
+
+As preparations proceed toward an official public release, we are inviting the community to propose a formal name suitable for this platform.
+
+Suggestions for an official project name are welcome.
