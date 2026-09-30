@@ -1,0 +1,6 @@
+UltraFastRng512 fresh-sample throughput companion: V1
+path=DIRECT / R2_FLOAT32 / representative specialized path
+generation=CHUNK (new Normal starter at every MC chunk)
+run 1: 12.710932 Gsamples/s | 5155.877 ns/chunk | samples=268435456 hits=53119899 switches=7
+run 2: 12.677955 Gsamples/s | 5169.288 ns/chunk | samples=268435456 hits=52917254 switches=6
+run 3: 12.206489 Gsamples/s | 5368.948 ns/chunk | samples=268435456 hits=53165540 switches=6

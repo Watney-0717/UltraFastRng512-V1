@@ -1,0 +1,39 @@
+UltraFastRng512 OPTIMIZATION QUALITY / ANTI-REUSE AUDIT: V1
+one-core complete | core profiles + Finance/Pharma options
+
+=== SAMPLE REUSE GUARD ===
+blocks presented to every optimization: 256
+logical Normal samples per corpus: 65536
+unique full q256 blocks: 256 / 256 (100.000%)
+adjacent identical full blocks: 0
+A full-block duplicate would be a strong copy/replay warning; parameter-level common-transform reuse is tested separately by baseline output agreement.
+
+=== CORE CULTIVATION / FINAL-PROFILE QUALITY ===
+DIRECT/R2_FLOAT32        N=262144 var=(1.005379,1.005379) corr=+9.820e-04 dep2=-1.535e-03 E[R2]=2.010783 VarR2=4.035997 hit=0.394981
+DIRECT/FLOAT32           N=262144 var=(0.997287,0.997287) corr=+4.255e-03 dep2=+3.202e-03 E[R2]=1.994574 VarR2=3.972522 hit=0.392143
+DIRECT/INT32             N=262144 var=(1.004413,1.004413) corr=+4.060e-03 dep2=+8.260e-04 E[R2]=2.008829 VarR2=4.082587 hit=0.393253
+DIRECT/RAW_INT16         N=262144 var=(1.007821,1.007821) corr=+2.620e-03 dep2=+2.704e-04 E[R2]=2.015642 VarR2=4.023270 hit=0.390392
+L1_CACHE/FLOAT32         N=262144 var=(1.002832,1.002832) corr=+8.273e-04 dep2=+2.882e-03 E[R2]=2.005686 VarR2=4.030508 hit=0.391727
+L2_CACHE/FLOAT32         N=262144 var=(1.011196,1.011196) corr=+6.192e-04 dep2=+6.930e-03 E[R2]=2.022515 VarR2=4.133512 hit=0.391823
+
+=== Finance OPTIMIZATION QUALITY ===
+AUTO                           selected=BASELINE                     samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+BASELINE                       selected=BASELINE                     samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+VEC8                           selected=VEC8                         samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+PARAM8_SHARED                  selected=PARAM8_SHARED                samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+PARAM4_PRECOMPUTE              selected=PARAM4_PRECOMPUTE            samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=2.299e-07
+PARAM8_PRECOMPUTE              selected=PARAM8_PRECOMPUTE            samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+PARAM4_PRECOMPUTE_INVARIANT    selected=PARAM4_PRECOMPUTE_INVARIANT  samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=2.299e-07
+Note: parameter-level common-transform reuse is intentional for shared/precomputed options; the fixed input corpus and sample count are held identical here.
+
+=== Pharma OPTIMIZATION QUALITY ===
+AUTO                           selected=BASELINE                     samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+BASELINE                       selected=BASELINE                     samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+VEC8                           selected=VEC8                         samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+PARAM8_SHARED                  selected=PARAM8_SHARED                samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+PARAM4_PRECOMPUTE              selected=PARAM4_PRECOMPUTE            samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=4.765e-09
+PARAM8_PRECOMPUTE              selected=PARAM8_PRECOMPUTE            samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=0.000e+00
+PARAM4_PRECOMPUTE_INVARIANT    selected=PARAM4_PRECOMPUTE_INVARIANT  samples=32768 sample_ratio=1.000000000 max_relerr_vs_BASELINE=1.851e-07
+Note: parameter-level common-transform reuse is intentional for shared/precomputed options; the fixed input corpus and sample count are held identical here.
+
+The anti-reuse test catches exact full-block replay/copying; the output-equivalence test checks estimator-preserving acceleration. Neither is a proof of statistical independence.

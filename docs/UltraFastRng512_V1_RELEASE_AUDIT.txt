@@ -1,0 +1,54 @@
+UltraFastRng512 V1 release-preparation audit — 2026-09-30
+
+CANONICAL PRIMARY SOURCE
+------------------------
+src/UltraFastRng512_MC_NORMALTAIL_OPTIMIZED_V1.c
+SHA-256: 40a6b4311b4cb0e4348f08990b5380ff7607444a92534e17e7014b997af393ba
+Lines: 9213
+
+REPRODUCED BUILD CHECK
+----------------------
+- canonical V1 source identity: PASS
+- lexical/source package assembly: PASS
+- NORMAL_GROUP=16: PASS
+- FRONT_STATE_COUNT=16: PASS
+- 4-way fanout: PASS
+- generic cache stride 465: PASS
+- R2 pair stride 555: PASS
+- V1 R2 scale factor 1.0007781: PASS
+- AAA profile CHACHA20-AAA-A1: PASS
+- AAA 14 double-rounds: PASS
+- AAA injection rr=9: PASS
+- AAA word=8: PASS
+- AAA kick 0x3B54CDA5: PASS
+- CLI verify path: PASS
+- UFR_EXTERNAL_MAIN guard: PASS
+- release self-test: PASS
+
+BUILD MODEL
+-----------
+The canonical V1 implementation is a single translation unit and embeds the
+V1 Finance Early, Pharma VPop/uncertainty, and portable checkpoint components.
+Standalone copies of those component .c files are retained for source
+inspection but are not linked separately by the canonical build script.
+
+PUBLIC RELEASE SCOPE
+--------------------
+This package intentionally contains V1 only. V2 source/binaries, LEGACY and
+staging artifacts, and CPU-specific prebuilt binaries are excluded.
+The full Deconstruction Book PDF is included separately as documentation.
+
+STATISTICAL QUALIFICATION BOUNDARY
+----------------------------------
+PractRand, TestU01 / SmallCrush, dieharder, and NIST SP800-22 named-suite
+qualification is not claimed by this package. The included MC-quality,
+surrogate-battery, and anti-reuse measurements are evidence only for their
+stated experimental scope.
+
+ANTI-REUSE DISCLOSURE
+---------------------
+The included deep audit distinguishes byte-level inequality from reuse of the
+underlying scalar Normal starter pool. PaperView views can be deterministic
+layouts of the same starter values, and FIXED generation can retain the same
+starter across chunks. Therefore logical sample count is not synonymous with
+independent sample count.

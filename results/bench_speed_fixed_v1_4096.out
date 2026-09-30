@@ -1,0 +1,16 @@
+UltraFastRng512 speed showcase
+baseline=V1
+path=DIRECT / R2_FLOAT32 / representative specialized path
+policy=Front + Back A/B + MC on one logical CPU core
+workload=4096 chunks/run | generation=1048576 chunks
+run 1 affinity: main=0 backA=0 backB=0 [ONE-CORE]
+run 1: 40.613 Gsamples/s | 6.303 ns/256 | samples=268435456 hits=52248256 mean=+0.102084167
+       switches=0 ready=0 missed=0
+run 2 affinity: main=0 backA=0 backB=0 [ONE-CORE]
+run 2: 39.315 Gsamples/s | 6.512 ns/256 | samples=268435456 hits=52248256 mean=+0.102084167
+       switches=0 ready=0 missed=0
+run 3 affinity: main=0 backA=0 backB=0 [ONE-CORE]
+run 3: 43.433 Gsamples/s | 5.894 ns/256 | samples=268435456 hits=52248256 mean=+0.102084167
+       switches=0 ready=0 missed=0
+MEDIAN: 40.613 Gsamples/s
+This is the integrated fastest-path showcase; it is not the broad options benchmark.

@@ -1,0 +1,11 @@
+UltraFastRng512 PRIMARY MC-INPUT QUALITY: V1
+one-core complete | families=8 | groups/family=8 | four views/group
+Quality point: x/y immediately before the R2 MC operation.
+
+[R2_FLOAT32 actual MC input]
+N=2097152 pairs | mean=(+0.001020205,+0.001020205) | var=(1.003524819,1.003524819)
+skew_x=-0.0003613 kurt_x=3.0043601 corr=-0.000176890 dep2=-0.000031481 lag1=(+0.000960662,+0.001496858)
+E[R2]=2.007051719 Var[R2]=4.036883487 hit=0.392969608 sign=0.499744415 tails=(0.317945480,0.045970917,0.002765656,0.000059128)
+
+Ideal N(0,1)-pair reference: var=1, kurtosis=3, corr=0, dep2=0, E[R2]=2, Var[R2]=4, hit=0.3934693403, sign=0.5
+This test is an MC-input statistical screen, not a named-suite certification.

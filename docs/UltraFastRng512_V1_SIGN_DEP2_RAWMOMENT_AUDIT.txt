@@ -1,0 +1,75 @@
+UltraFastRng512 V1 — Sign / dep2 / raw-moment audit
+Date: 2026-09-29
+
+STATUS
+------
+V1 remains frozen. No new source change is promoted from this audit.
+The purpose of this pass is to determine whether the current integrated V1
+still contains a root-cause defect after the previously selected pair-geometry repair.
+
+SOURCE
+------
+Submission source: UltraFastRng512_MC_NORMALTAIL_OPTIMIZED_V1.c
+Submission SHA-256: 40a6b4311b4cb0e4348f08990b5380ff7607444a92534e17e7014b997af393ba
+Measured V1 benchmark snapshot: cd8dae646a9865f9867095df5da4903a6e03ce3f806a9dbbce135c8ec2a4ee8b
+The submission cleanup changed presentation/build metadata only; it did not introduce a new RNG/MC transform.
+
+1. SIGN AUDIT
+-------------
+Current aggregate: 134,217,728 x/y pairs, RAW16/INT32/FLOAT32 path.
+sign mismatch = 0.499963343
+ideal              = 0.500000000
+delta              = -0.000036657
+Approximate binomial standard error = 0.000043158
+Approximate z-score = -0.849
+
+Interpretation: the measured sign imbalance is small and is not evidence of the old structural pair failure.
+Historical integrated pre-repair value was 0.456146240234, versus 0.498794555664 after the 555 row permutation.
+The current V1 therefore retains the repaired sign behavior.
+
+2. dep2 AUDIT
+--------------
+Current aggregate dep2 = -0.000001154.
+R2-specific dep2 = -0.000158922.
+
+Historical pre-repair integrated dep2 = +0.060467831626.
+The present values are orders of magnitude smaller than the pre-repair defect.
+Because the project reports dep2 as an application-specific dependence diagnostic rather than a standard normal-theory estimator, no formal sampling z-score is assigned here.
+
+3. RAW-MOMENT AUDIT
+--------------------
+Current aggregate (N=134,217,728 pairs):
+  mean x/y     = -0.000053040 / +0.000025000
+  variance x/y = 1.000016879 / 0.999839084
+  skew x/y     = +0.0002867 / +0.0005465
+  kurtosis x/y= 2.9993048 / 2.9987968
+  corr         = +0.000047075
+  E[R^2]       = 1.999855966
+  Var(R^2)     = 3.997521318
+  P(R^2<=1)    = 0.393400602
+
+The marginal moments remain centered near the intended N(0,1) reference.
+The small residual skew/kurtosis offsets are consistent with the already-documented discrete Normal-LUT / finite-quantization behavior and do not reproduce the earlier pair-geometry failure.
+
+4. ROOT-CAUSE DECISION
+----------------------
+No new high-confidence root cause has been identified that justifies changing V1.
+The earlier sign/dep2 defect was caused by MC pair formation from coupled consecutive fanout rows; the selected odd-stride cache geometry separates those physical source rows while preserving sequential MC consumption.
+
+The remaining visible tail/moment differences are downstream Normal-approximation effects rather than the old pair-geometry defect. The V1 Normal-LUT tail refinement already reduced the 3-sigma relative error to approximately +0.375% and the 4-sigma relative error to approximately -1.667% in the 134M-pair audit.
+
+5. SPEED-PRESERVATION DECISION
+------------------------------
+No new Front arithmetic, stores, copies, seed lineage, or MC hot-loop indexing is introduced.
+No candidate is promoted from this audit. The current V1 therefore remains unchanged.
+
+6. RECOMMENDED RESEARCH BRANCH (V2+ ONLY)
+------------------------------------------
+Future quality research, separate from the frozen submission line, should focus on controlled Normal-LUT moment/tail experiments with symmetry-preserving edits and fixed seed/pair geometry.
+Any candidate should be compared against the exact V1 source under identical multi-seed/multi-generation conditions before adoption.
+
+7. FINAL DECISION
+-----------------
+V1 = KEEP / FREEZE.
+No source change is justified by the current sign/dep2/raw-moment audit.
+Paper/submission materials should continue to distinguish measured-source SHA from frozen-submission SHA.

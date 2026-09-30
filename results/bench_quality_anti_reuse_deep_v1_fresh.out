@@ -1,0 +1,11 @@
+UltraFastRng512 DEEP OPTIMIZATION QUALITY / ANTI-REUSE AUDIT: V1
+byte-level uniqueness and underlying Normal-value-pool reuse are tested separately
+VIEWS=4 blocks/view=64 scalars/view=16384
+VIEW0_vs_VIEW1 scalar_multiset_equal=1 exact_q256_replay=0/64
+VIEW0_vs_VIEW2 scalar_multiset_equal=1 exact_q256_replay=0/64
+VIEW0_vs_VIEW3 scalar_multiset_equal=1 exact_q256_replay=0/64
+GEN=1 chunks=2 qblocks/chunk=256 scalars/chunk=65536 raw_chunk_equal=0 exact_q256_replay=0/256 scalar_multiset_equal=0 hash=(42bdefa6a164f69b,50a00e5d098a5ed7)
+GEN=2 chunks=2 qblocks/chunk=256 scalars/chunk=65536 raw_chunk_equal=0 exact_q256_replay=256/256 scalar_multiset_equal=1 hash=(42bdefa6a164f69b,c331872cc40e52eb)
+GEN=64 chunks=2 qblocks/chunk=256 scalars/chunk=65536 raw_chunk_equal=0 exact_q256_replay=256/256 scalar_multiset_equal=1 hash=(42bdefa6a164f69b,c331872cc40e52eb)
+GEN=1048576 chunks=2 qblocks/chunk=256 scalars/chunk=65536 raw_chunk_equal=0 exact_q256_replay=256/256 scalar_multiset_equal=1 hash=(42bdefa6a164f69b,c331872cc40e52eb)
+Interpretation: raw byte inequality alone is not sufficient; a FIXED generation may keep the same 64 KiB Normal starter and merely re-index it. Exact scalar-multiset equality and full q256 replay therefore count as underlying sample-pool reuse, even when the emitted chunk byte sequence differs.

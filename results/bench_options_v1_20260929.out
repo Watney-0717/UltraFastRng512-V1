@@ -1,0 +1,52 @@
+UltraFastRng512 broad benchmark: V1
+policy=one-core complete; Front + Back A/B remain on the same core
+chunks=1024 generation=1048576 runs=3
+host cpu=0; all benchmark engines pin their Front/Back to that core
+
+=== MC option surface / selector coverage ===
+AUTO                         selector=eligible selected=R2_CACHE8 lanes=8 precompute=1 score=100
+BASELINE                     selector=eligible selected=BASELINE lanes=1 precompute=0 score=0
+VEC8                         selector=eligible selected=VEC8 lanes=8 precompute=0 score=0
+PARAM8_SHARED                selector=eligible selected=PARAM8_SHARED lanes=8 precompute=0 score=0
+PARAM4_PRECOMPUTE            selector=eligible selected=PARAM4_PRECOMPUTE lanes=4 precompute=1 score=0
+PARAM8_PRECOMPUTE            selector=eligible selected=PARAM8_PRECOMPUTE lanes=8 precompute=1 score=0
+PARAM4_PRECOMPUTE_INVARIANT  selector=eligible selected=PARAM4_PRECOMPUTE_INVARIANT lanes=4 precompute=1 score=0
+PATH8_BLOCK                  selector=eligible selected=PATH8_BLOCK lanes=8 precompute=0 score=0
+PATH4X2                      selector=eligible selected=PATH4X2 lanes=4 precompute=0 score=0
+PATH4                        selector=eligible selected=PATH4 lanes=4 precompute=0 score=0
+R2_CACHE8                    selector=eligible selected=R2_CACHE8 lanes=8 precompute=1 score=0
+NOTE: PATH8_BLOCK/PATH4X2/PATH4 remain manual/path-specific surfaces; the current generic Finance/Pharma q256 bridge does not execute them.
+
+=== Core transport / final-profile throughput ===
+AUTO -> DIRECT/R2        47.192 Gsamples/s median | runs=3
+DIRECT / R2_FLOAT32      43.962 Gsamples/s median | runs=3
+DIRECT / FLOAT32         21.771 Gsamples/s median | runs=3
+DIRECT / INT32           21.990 Gsamples/s median | runs=3
+DIRECT / RAW_INT16       15.680 Gsamples/s median | runs=3
+L1_CACHE / FLOAT32       9.639 Gsamples/s median | runs=3
+L2_CACHE / FLOAT32       9.537 Gsamples/s median | runs=3
+
+=== Integrated Finance optimization options ===
+FIN      AUTO                         1.234 Gsamples/s median | runs=3
+FIN      BASELINE                     0.388 Gsamples/s median | runs=3
+FIN      VEC8                         0.375 Gsamples/s median | runs=3
+FIN      PARAM8_SHARED                0.922 Gsamples/s median | runs=3
+FIN      PARAM4_PRECOMPUTE            1.204 Gsamples/s median | runs=3
+FIN      PARAM8_PRECOMPUTE            0.918 Gsamples/s median | runs=3
+FIN      PARAM4_PRECOMPUTE_INVARIANT  1.237 Gsamples/s median | runs=3
+
+=== Integrated Pharma optimization options ===
+PHARM    AUTO                         0.921 Gsamples/s median | runs=3
+PHARM    BASELINE                     0.120 Gsamples/s median | runs=3
+PHARM    VEC8                         0.110 Gsamples/s median | runs=3
+PHARM    PARAM8_SHARED                0.527 Gsamples/s median | runs=3
+PHARM    PARAM4_PRECOMPUTE            0.533 Gsamples/s median | runs=3
+PHARM    PARAM8_PRECOMPUTE            0.539 Gsamples/s median | runs=3
+PHARM    PARAM4_PRECOMPUTE_INVARIANT  0.916 Gsamples/s median | runs=3
+
+Notes:
+- DIRECT/R2_FLOAT32 is the intended first-run speed showcase.
+- VEC8 currently shares the deliberate baseline body in the integrated Finance/Pharma consumer.
+- PARAM8_PRECOMPUTE currently shares the common optimized body unless the invariant specialization is selected.
+- PATH8_BLOCK/PATH4X2/PATH4 are retained manual/path-specific options, not silently presented as end-to-end domain speeds.
+- Numbers from this tour are engineering references, not formal cross-machine claims.

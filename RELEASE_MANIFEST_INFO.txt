@@ -1,0 +1,14 @@
+UltraFastRng512 V1 Public Release
+Date: 2026-09-30
+Manifest rule: SHA-256 for every file in the release tree except RELEASE_MANIFEST_SHA256.txt itself.
+Canonical V1 source SHA-256: 40a6b4311b4cb0e4348f08990b5380ff7607444a92534e17e7014b997af393ba
+Documentation: Deconstruction Book v3.3 English Edition + CC BY-NC-ND 4.0 notice
+Core code license: AGPL-3.0-only OR separate Commercial License
+Mathematical specification: CC BY 4.0
+Benchmark result data: intended CC0 1.0 dedication
+Benchmark/audit source: 0BSD
+Third-party components: original licenses remain applicable
+Rights holder: Watney-0717
+Commercial License: COMMERCIAL_LICENSE.md
+English Deconstruction Book SHA-256: 78f7f403f065dceabd8f6f1e9fcac54b541b930dba136c0d45d56998455bfe50
+Manifest entries: 51
